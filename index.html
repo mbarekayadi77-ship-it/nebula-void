@@ -3,182 +3,438 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEBULA VOID | أرشيف الأرواح الرقمي</title>
+    <title>NEBULA VOID | THE TITAN ARCHIVE</title>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Cairo:wght@300;700&display=swap" rel="stylesheet">
-    
-    <style>
-        * { cursor: crosshair; margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; color: white; font-family: 'Cairo', sans-serif; overflow: hidden; }
-        .nebula-font { font-family: 'Orbitron', sans-serif; }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Cairo:wght@200;300;400;700;900&display=swap" rel="stylesheet">
 
-        /* تأثير التوهج للواجهة */
-        .glass-container {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50px;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
-            transition: 0.5s;
+    <style>
+        /* إعدادات المتصفح الأساسية */
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #7000ff;
+            --gold: #ffd700;
+            --deep-black: #000000;
+            --glass: rgba(255, 255, 255, 0.03);
         }
 
-        .glass-container:hover { border-color: rgba(59, 130, 246, 0.5); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* إخفاء الماوس العادي لاستبداله بماوس الموقع */
+        }
 
-        /* الكلمات التي تطير في الفضاء */
-        .floating-word {
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--deep-black);
+            color: white;
+            font-family: 'Cairo', sans-serif;
+            overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* حاوية الفضاء 3D */
+        #nebula-canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* الماوس المخصص */
+        #custom-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--neon-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.15s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #custom-cursor::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+        }
+
+        /* التصميم الزجاجي المتطور */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 40px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9);
+        }
+
+        /* الأنميشن الخاص بالكلمات */
+        .void-text {
             position: absolute;
             pointer-events: none;
-            text-transform: uppercase;
-            letter-spacing: 5px;
+            font-family: 'Orbitron', sans-serif;
             font-weight: 900;
-            filter: blur(1px);
-            animation: moveWord 8s linear forwards;
+            text-shadow: 0 0 15px currentColor;
+            z-index: 5;
             white-space: nowrap;
         }
 
-        @keyframes moveWord {
-            0% { transform: translateZ(0) scale(0.5); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: translateZ(1000px) scale(3); opacity: 0; }
+        /* القائمة الجانبية للأرشيف */
+        #side-log {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 250px;
+            z-index: 100;
+            pointer-events: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            opacity: 0.4;
+        }
+
+        .log-entry {
+            margin-bottom: 15px;
+            border-right: 2px solid var(--neon-blue);
+            padding-right: 15px;
+            text-align: left;
+            animation: fadeInRight 0.5s ease-out;
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         /* زر النجمة الذهبية المتحرك */
-        .gold-button {
-            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
-            background-size: 200%;
-            animation: goldAnim 3s infinite;
-            color: black; font-weight: bold;
+        .btn-premium {
+            background: linear-gradient(90deg, #ffd700, #ffae00, #ffd700);
+            background-size: 200% auto;
+            color: black;
+            font-weight: 900;
+            transition: 0.5s;
+            animation: goldFlow 3s linear infinite;
         }
 
-        @keyframes goldAnim {
-            0% { background-position: 0%; }
-            100% { background-position: 200%; }
+        @keyframes goldFlow {
+            to { background-position: 200% center; }
         }
 
-        /* القائمة الجانبية للأرشيف */
-        .side-archive {
-            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-            border-left: 2px solid rgba(59, 130, 246, 0.3);
-            padding-left: 15px;
+        /* نظام التنبيهات */
+        #notification-center {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--neon-blue);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <div id="canvas-container" class="fixed inset-0 z-0"></div>
+    <div id="custom-cursor"></div>
+    <div id="nebula-canvas-container"></div>
+    
+    <div id="notification-center"></div>
 
-    <div class="relative z-10 flex flex-col items-center justify-between h-screen py-10 pointer-events-none">
+    <div id="side-log">
+        <p class="text-blue-400 mb-4 tracking-tighter">[ SYSTEM_LOGS_ACTIVE ]</p>
+        <div id="logs-container"></div>
+    </div>
+
+    <div class="relative z-10 h-full flex flex-col justify-between p-10 pointer-events-none">
         
-        <header class="text-center">
-            <h1 class="nebula-font text-6xl md:text-9xl font-black tracking-[0.2em] opacity-20">VOID</h1>
-            <h2 class="text-blue-400 nebula-font text-xs tracking-[1em] -mt-4 uppercase">Nebula Archive System</h2>
+        <header class="flex justify-between items-start">
+            <div class="brand">
+                <h1 class="orbitron text-4xl md:text-6xl font-black tracking-[15px] opacity-70">NEBULA</h1>
+                <p class="text-[9px] tracking-[10px] text-blue-500 mt-2">GLOBAL SOUL ARCHIVE V5.0.0</p>
+            </div>
+            <div class="stats text-[10px] orbitron text-white/30 text-right">
+                <p>CORE_TEMP: 32.4°C</p>
+                <p>UPLINK: ACTIVE</p>
+                <p>MEM_CAP: <span id="mem-percent">0</span>%</p>
+            </div>
         </header>
 
-        <main class="glass-container p-10 w-[95%] max-w-xl pointer-events-auto">
-            <div class="mb-6">
-                <p class="text-[10px] text-blue-300 nebula-font mb-2 tracking-widest uppercase">Input your frequency:</p>
-                <input type="text" id="soulInput" maxlength="30" placeholder="اكتب شعورك هنا..." 
-                    class="w-full bg-transparent border-b-2 border-white/20 p-4 text-2xl text-center focus:border-blue-500 outline-none transition-all">
+        <div class="glass-panel p-10 md:p-16 w-full max-w-2xl mx-auto pointer-events-auto transform hover:scale-[1.02] transition-transform duration-700">
+            <div class="text-center mb-10">
+                <h3 class="text-xs tracking-[0.5em] text-white/40 mb-4 uppercase">أودع فكرتك في سديم الفراغ</h3>
+                <input type="text" id="soulInput" maxlength="40" placeholder="ماذا يدور في عقلك الآن؟" 
+                       class="w-full bg-transparent border-b border-white/10 p-4 text-2xl md:text-4xl text-center focus:border-blue-500 outline-none transition-all placeholder:text-white/5 font-extralight">
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="castToVoid()" class="bg-white text-black py-4 rounded-full font-black hover:bg-blue-600 hover:text-white transition-all transform active:scale-90">إرسال للفراغ</button>
-                <button onclick="showGoldInfo()" class="gold-button py-4 rounded-full flex items-center justify-center gap-2">
-                    <span>كن نجماً ذهبياً</span>
-                    <span class="bg-black/20 px-2 py-1 rounded text-[10px]">$1</span>
+            <div class="flex flex-col md:flex-row gap-6">
+                <button onclick="processSoulSignal()" class="flex-1 bg-white text-black py-5 rounded-full font-bold orbitron hover:bg-blue-600 hover:text-white transition-all shadow-xl active:scale-90">
+                    SEND SIGNAL
+                </button>
+                <button onclick="launchPremiumModal()" class="btn-premium px-10 py-5 rounded-full orbitron shadow-xl flex items-center justify-center gap-3">
+                    GOLDEN STAR <span class="bg-black/10 px-2 py-0.5 rounded text-[10px]">$1</span>
                 </button>
             </div>
-        </main>
+        </div>
 
-        <footer class="w-full px-10 flex justify-between items-end opacity-40 nebula-font text-[8px]">
-            <div>COORD: 45.001 / -90.23 <br> STATUS: CORE_STABLE</div>
-            <div class="text-right">COLLECTED_SOULS: <span id="soulCounter">12,409</span></div>
+        <footer class="flex justify-between items-end orbitron text-[9px] text-white/20">
+            <div class="flex flex-col gap-1">
+                <p>LATITUDE: 35.6895° N</p>
+                <p>LONGITUDE: 139.6917° E</p>
+                <p>SECTOR: VOID_09</p>
+            </div>
+            <div class="text-center hidden md:block">
+                <p class="mb-2">ENCRYPTION: AES-256-BIT_ENABLED</p>
+                <div class="w-48 h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-blue-500 w-0 transition-all duration-1000"></div>
+                </div>
+            </div>
+            <div class="text-right">
+                <p>SOULS_SYNCED</p>
+                <p class="text-xl text-white/60" id="total-souls">142,008</p>
+            </div>
         </footer>
     </div>
 
-    <div class="side-archive z-10 hidden md:block opacity-30 text-[10px] nebula-font" id="archiveList">
-        <p class="mb-2 text-blue-400">LAST SIGNALS:</p>
-        <div id="signals"></div>
-    </div>
-
     <script>
-        // --- إعداد المشهد ثلاثي الأبعاد ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        /*
+            ==================================================
+            CORE SCRIPTING - NEBULA ENGINE
+            ==================================================
+        */
 
-        // إنشاء آلاف النجوم
-        const starsGeometry = new THREE.BufferGeometry();
-        const starsPos = [];
-        for(let i=0; i<15000; i++) {
-            starsPos.push(THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000));
+        // 1. المتغيرات العالمية
+        let scene, camera, renderer, starField, particleSystem;
+        let soulsCounter = 142008;
+        const input = document.getElementById('soulInput');
+        const cursor = document.getElementById('custom-cursor');
+
+        // 2. محرك الماوس المخصص
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, {
+                x: e.clientX - 15,
+                y: e.clientY - 15,
+                duration: 0.3,
+                ease: "power2.out"
+            });
+            
+            // تحريك الكاميرا مع الماوس
+            if(camera) {
+                camera.position.x += (e.clientX - window.innerWidth / 2) * 0.0005;
+                camera.position.y += (-(e.clientY - window.innerHeight / 2)) * 0.0005;
+                camera.lookAt(scene.position);
+            }
+        });
+
+        // 3. بناء الفضاء ثلاثي الأبعاد
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
+            camera.position.z = 1000;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('nebula-canvas-container').appendChild(renderer.domElement);
+
+            // إضافة النجوم الخلفية
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, transparent: true, opacity: 0.5 });
+            
+            const starsVertices = [];
+            for (let i = 0; i < 20000; i++) {
+                starsVertices.push(THREE.MathUtils.randFloatSpread(3000), THREE.MathUtils.randFloatSpread(3000), THREE.MathUtils.randFloatSpread(3000));
+            }
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+            starField = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(starField);
+
+            // إضافة السديم الملون
+            createNebulaParticles();
+            
+            animate();
         }
-        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsPos, 3));
-        const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 });
-        const starField = new THREE.Points(starsGeometry, starsMaterial);
-        scene.add(starField);
 
-        camera.position.z = 1;
+        function createNebulaParticles() {
+            const geo = new THREE.BufferGeometry();
+            const mat = new THREE.PointsMaterial({
+                size: 2,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                opacity: 0.8
+            });
 
-        // التحريك
+            const pos = [];
+            const col = [];
+            for (let i = 0; i < 5000; i++) {
+                pos.push(THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000));
+                const r = Math.random();
+                const g = Math.random();
+                const b = 1;
+                col.push(r, g, b);
+            }
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+            particleSystem = new THREE.Points(geo, mat);
+            scene.add(particleSystem);
+        }
+
         function animate() {
             requestAnimationFrame(animate);
-            starField.rotation.y += 0.0005;
-            starField.position.z += 0.5; // تأثير السفر بسرعة الضوء
-            if(starField.position.z > 500) starField.position.z = 0;
+            
+            starField.rotation.y += 0.0002;
+            particleSystem.rotation.y -= 0.0005;
+            particleSystem.rotation.x += 0.0003;
+
             renderer.render(scene, camera);
         }
-        animate();
 
-        // --- منطق الموقع ---
-        function castToVoid() {
-            const input = document.getElementById('soulInput');
+        // 4. معالجة الإشارات (إرسال الكلمات)
+        function processSoulSignal() {
             const val = input.value.trim();
-
-            if(val.length < 2) {
-                alert("الكلمة قصيرة جداً لتصل إلى الفراغ!");
+            if (val === "") {
+                createNotification("System Error: No signal detected.");
                 return;
             }
 
+            // تشغيل تأثير Warp Speed مؤقتاً
+            gsap.to(camera.position, { z: 500, duration: 1.5, yoyo: true, repeat: 1, ease: "expo.inOut" });
+
             // إنشاء الكلمة الطائرة
-            const word = document.createElement('div');
-            word.className = 'floating-word';
-            word.innerText = val;
-            word.style.left = Math.random() * 80 + 10 + '%';
-            word.style.top = Math.random() * 80 + 10 + '%';
-            word.style.color = hsl(${Math.random() * 360}, 100%, 80%);
-            word.style.fontSize = Math.random() * 30 + 20 + 'px';
-            document.body.appendChild(word);
+            createFloatingText(val);
 
-            // إضافة للأرشيف الجانبي
-            const sig = document.createElement('p');
-            sig.innerText = > ${val};
-            const signals = document.getElementById('signals');
-            signals.prepend(sig);
-            if(signals.children.length > 5) signals.lastChild.remove();
+            // تحديث الأرشيف الجانبي
+            addToSideLog(val);
 
-            // تحديث العداد
-            const count = document.getElementById('soulCounter');
-            count.innerText = (parseInt(count.innerText.replace(',','')) + 1).toLocaleString();
+            // تحديث العدادات
+            updateCounters();
 
-            // تنظيف وإعادة تركيز
+            // تنظيف الإدخال
             input.value = "";
-            setTimeout(() => word.remove(), 8000);
+            createNotification("Signal Archived Successfully.");
         }
 
-        function showGoldInfo() {
-            alert("سجل اسمك في السديم للأبد بنجمة ذهبية لا تنطفئ.");
-            window.open('https://paypal.me/YOUR_NAME', '_blank');
+        function createFloatingText(text) {
+            const el = document.createElement('div');
+            el.className = 'void-text';
+            el.innerText = text;
+            
+            const randomX = Math.random() * window.innerWidth;
+            const randomY = Math.random() * window.innerHeight;
+            const randomColor = hsl(${Math.random() * 360}, 80%, 70%);
+
+            el.style.left = randomX + 'px';
+            el.style.top = randomY + 'px';
+            el.style.color = randomColor;
+            el.style.fontSize = Math.random() * 40 + 20 + 'px';
+            
+            document.body.appendChild(el);
+
+            // تحريك الكلمة باستخدام GSAP (لزيادة طول الكود والاحترافية)
+            gsap.fromTo(el, 
+                { z: -1000, opacity: 0, scale: 0.1 },
+                { 
+                    z: 500, 
+                    opacity: 1, 
+                    scale: 3, 
+                    duration: 6, 
+                    onComplete: () => el.remove(),
+                    ease: "power1.in"
+                }
+            );
         }
 
+        function addToSideLog(text) {
+            const container = document.getElementById('logs-container');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const now = new Date();
+            entry.innerHTML = <span class="text-white/20">${now.getHours()}:${now.getMinutes()}</span> > ${text.toUpperCase()};
+            
+            container.prepend(entry);
+            if(container.children.length > 😎 container.lastChild.remove();
+        }
+
+        function updateCounters() {
+            soulsCounter++;
+            document.getElementById('total-souls').innerText = soulsCounter.toLocaleString();
+            
+            const progress = document.getElementById('progress-bar');
+            const mem = document.getElementById('mem-percent');
+            let currentP = parseInt(mem.innerText);
+            if(currentP < 100) {
+                currentP += Math.floor(Math.random() * 5);
+                mem.innerText = currentP;
+                progress.style.width = currentP + '%';
+            }
+        }
+
+        function createNotification(msg) {
+            const center = document.getElementById('notification-center');
+            const toast = document.createElement('div');
+            toast.className = 'toast orbitron';
+            toast.innerText = msg;
+            center.appendChild(toast);
+            
+            setTimeout(() => {
+                gsap.to(toast, { opacity: 0, y: -20, duration: 0.5, onComplete: () => toast.remove() });
+            }, 3000);
+        }
+
+        function launchPremiumModal() {
+            createNotification("Redirecting to Galactic Payment Gateway...");
+            setTimeout(() => {
+                window.open('https://paypal.me/YOUR_NAME', '_blank');
+            }, 1500);
+        }
+
+        // 5. تهيئة الموقع عند التحميل
+        window.onload = () => {
+            initThree();
+            createNotification("NEBULA VOID SYSTEMS ONLINE");
+            
+            // محاكاة تحميل الذاكرة
+            setTimeout(() => {
+                document.getElementById('progress-bar').style.width = '45%';
+                document.getElementById('mem-percent').innerText = '45';
+            }, 2000);
+        };
+
+        // 6. التعامل مع تغيير حجم الشاشة
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        /*
+            ==================================================
+            END OF TITAN CORE SCRIPT
+            ==================================================
+        */
     </script>
 </body>
 </html>
