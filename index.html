@@ -1,482 +1,206 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Nebula Void - The Global Elite Archive">
-    <title>NEBULA VOID | THE 700+ LINE SUPREME ARCHIVE</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Cairo:wght@200;300;400;700;900&display=swap" rel="stylesheet">
-
-    <style>
-        /* [Section 1: Global Variables] */
-        :root {
-            --primary-glow: #00f2ff;
-            --secondary-glow: #7000ff;
-            --premium-gold: #ffd700;
-            --deep-void: #000000;
-            --glass-bg: rgba(255, 255, 255, 0.02);
-            --transition-speed: 0.6s;
-        }
-
-        /* [Section 2: Core Layout] */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            cursor: none !important; /* Managed by JS Radar */
-        }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            background-color: var(--deep-void);
-            color: #ffffff;
-            font-family: 'Cairo', sans-serif;
-            overflow: hidden;
-            scroll-behavior: smooth;
-        }
-
-        /* [Section 3: Canvas Setup] */
-        #nebula-main-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-            filter: contrast(1.2) brightness(0.8);
-        }
-
-        /* [Section 4: Custom Radar Cursor] */
-        #radar-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 50px;
-            height: 50px;
-            border: 2px solid var(--primary-glow);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 99999;
-            transform: translate(-50%, -50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px var(--primary-glow);
-        }
-
-        #radar-cursor .dot {
-            width: 6px;
-            height: 6px;
-            background: var(--primary-glow);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--primary-glow);
-        }
-
-        #radar-cursor .circle {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 1px solid rgba(0, 242, 255, 0.3);
-            border-radius: 50%;
-            animation: radarPulse 2s infinite ease-out;
-        }
-
-        @keyframes radarPulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(3); opacity: 0; }
-        }
-
-        /* [Section 5: UI Empire Components] */
-        .ui-master-wrapper {
-            position: relative;
-            z-index: 100;
-            height: 100vh;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            padding: 60px;
-            pointer-events: none;
-        }
-
-        .supreme-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(100px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 100px;
-            padding: 100px;
-            max-width: 900px;
-            margin: auto;
-            pointer-events: auto;
-            text-align: center;
-            box-shadow: 0 100px 200px rgba(0,0,0,0.8);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .supreme-card:hover {
-            transform: translateY(-20px) scale(1.01);
-            border-color: var(--primary-glow);
-            box-shadow: 0 0 80px rgba(0, 242, 255, 0.2);
-        }
-
-        /* [Section 6: Typography & Inputs] */
-        .orbitron { font-family: 'Orbitron', sans-serif; }
-        
-        h1.title-main {
-            font-size: 8vw;
-            font-weight: 900;
-            letter-spacing: 40px;
-            opacity: 0.2;
-            text-transform: uppercase;
-            margin-bottom: -50px;
-            pointer-events: none;
-        }
-
-        input#soulInput {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid rgba(255,255,255,0.05);
-            padding: 30px;
-            color: var(--primary-glow);
-            font-size: 3.5rem;
-            text-align: center;
-            outline: none;
-            margin-bottom: 60px;
-            font-weight: 200;
-            transition: 0.5s;
-        }
-
-        input#soulInput:focus {
-            border-bottom-color: var(--primary-glow);
-            letter-spacing: 20px;
-        }
-
-        /* [Section 7: Luxury Buttons] */
-        .btn-action {
-            padding: 30px 80px;
-            border-radius: 200px;
-            font-size: 1.4rem;
-            font-weight: 900;
-            letter-spacing: 3px;
-            transition: 0.5s;
-            text-transform: uppercase;
-        }
-
-        .btn-send {
-            background: #ffffff;
-            color: #000000;
-        }
-
-        .btn-send:hover {
-            background: var(--primary-glow);
-            color: #fff;
-            box-shadow: 0 0 50px var(--primary-glow);
-        }
-
-        .btn-gold-50 {
-            border: 2px solid var(--premium-gold);
-            color: var(--premium-gold);
-            background: transparent;
-            box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.1);
-        }
-
-        .btn-gold-50:hover {
-            background: var(--premium-gold);
-            color: #000;
-            box-shadow: 0 0 100px var(--premium-gold);
-        }
-
-        /* [Section 8: Floating Objects] */
-        .signal-fragment {
-            position: absolute;
-            pointer-events: none;
-            z-index: 50;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            text-transform: uppercase;
-            mix-blend-mode: screen;
-        }
-
-        /* [Section 9: Data Overlays] */
-        .data-sidebar {
-            position: fixed;
-            left: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 200;
-            font-size: 9px;
-            letter-spacing: 4px;
-            opacity: 0.3;
-            writing-mode: vertical-rl;
-            text-transform: uppercase;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nebula X Search</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:Segoe UI,sans-serif;
+background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+color:white;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+header{
+width:100%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px;
+}
+.logo{
+font-size:24px;
+font-weight:bold;
+}
+.controls{
+display:flex;
+gap:10px;
+}
+button,select{
+padding:6px 12px;
+border-radius:20px;
+border:none;
+cursor:pointer;
+}
+.lang{
+background:none;
+border:1px solid gold;
+color:gold;
+}
+select{
+background:black;
+color:white;
+border:1px solid white;
+}
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+width:100%;
+padding:20px;
+}
+.search-box{
+display:flex;
+width:90%;
+max-width:600px;
+background:white;
+border-radius:50px;
+overflow:hidden;
+}
+.search-box input{
+flex:1;
+padding:15px;
+border:none;
+outline:none;
+font-size:16px;
+}
+.search-box button{
+background:gold;
+border:none;
+padding:0 25px;
+}
+.results{
+margin-top:25px;
+width:90%;
+max-width:700px;
+}
+.result{
+background:rgba(255,255,255,0.08);
+padding:15px;
+margin:10px 0;
+border-radius:10px;
+cursor:pointer;
+transition:.3s;
+}
+.result:hover{
+background:rgba(255,255,255,0.15);
+}
+.history{
+margin-top:20px;
+font-size:14px;
+opacity:.8;
+}
+.clear{
+margin-top:10px;
+background:red;
+color:white;
+}
+footer{
+padding:15px;
+opacity:.5;
+}
+@media(max-width:768px){
+.logo{font-size:18px}
+}
+</style>
 </head>
 <body>
 
-    <div id="radar-cursor">
-        <div class="dot"></div>
-        <div class="circle"></div>
-    </div>
+<header>
+<div class="logo"><i class="fa-solid fa-star"></i> Nebula X</div>
 
-    <canvas id="nebula-main-canvas"></canvas>
+<div class="controls">
+<select id="engine">
+<option value="google">Google</option>
+<option value="bing">Bing</option>
+<option value="duck">DuckDuckGo</option>
+</select>
+<button class="lang" onclick="toggleLang()">EN</button>
+</div>
+</header>
 
-    <div class="data-sidebar orbitron">
-        SYSTEM_ID: X-99 // SECTOR: VOID_SUPREME // PRICE: 50.00 USD // STATUS: LIVE
-    </div>
+<div class="main">
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="ابحث في الإنترنت...">
+<button onclick="search()"><i class="fa-solid fa-search"></i></button>
+</div>
 
-    <div class="ui-master-wrapper">
-        
-        <header class="flex justify-between items-start w-full">
-            <div class="brand-group">
-                <h1 class="title-main orbitron">NEBULA</h1>
-                <p class="orbitron text-[12px] tracking-[15px] text-cyan-400 mt-4">GLOBAL ARCHIVE SYSTEM V8.0</p>
-            </div>
-            <div class="system-logs text-right orbitron text-[9px] opacity-30 leading-loose">
-                PROTOCOL: QUANTUM_SECURE<br>
-                UPLINK_STRENGTH: 98.4%<br>
-                TIER: ELITE_ACCESS
-            </div>
-        </header>
+<div class="results" id="results"></div>
+<div class="history" id="history"></div>
+<button class="clear" onclick="clearHistory()">حذف السجل</button>
+</div>
 
-        <main class="supreme-card shadow-2xl">
-            <div class="decorative-dots mb-10 flex justify-center gap-2">
-                <div class="w-1 h-1 bg-cyan-400 rounded-full animate-ping"></div>
-                <div class="w-1 h-1 bg-cyan-400 rounded-full animate-ping [animation-delay:0.2s]"></div>
-                <div class="w-1 h-1 bg-cyan-400 rounded-full animate-ping [animation-delay:0.4s]"></div>
-            </div>
-            
-            <h2 class="orbitron text-[10px] tracking-[2em] mb-12 opacity-40 uppercase">Deposit Signal into the Void</h2>
-            
-            <input type="text" id="soulInput" maxlength="30" placeholder="ENTER FREQUENCY">
-            
-            <div class="btn-group flex flex-col md:flex-row gap-8 justify-center items-center">
-                <button onclick="triggerBlast()" class="btn-action btn-send orbitron">Cast Frequency</button>
-                <button onclick="openPremiumPortal()" class="btn-action btn-gold-50 orbitron">Claim Legacy ($50)</button>
-            </div>
-        </main>
+<footer>
+© 2026 Nebula X Search Engine
+</footer>
 
-        <footer class="flex justify-between items-end w-full orbitron text-[9px] opacity-30 tracking-[6px]">
-            <div class="coords-display">
-                X: <span id="pos-x">000</span> | Y: <span id="pos-y">000</span>
-            </div>
-            <div class="center-footer text-center">
-                <p class="mb-2">ARCHIVE_SYNC_SUCCESSFUL</p>
-                <div class="w-64 h-[1px] bg-white/10 relative">
-                    <div id="sync-bar" class="absolute top-0 left-0 h-full bg-cyan-400 transition-all duration-1000" style="width: 65%;"></div>
-                </div>
-            </div>
-            <div class="legal">
-                © 2026 ARCHIVE CORP. ALL RIGHTS RESERVED.
-            </div>
-        </footer>
+<script>
+let lang="ar";
 
-    </div>
+function toggleLang(){
+if(lang==="ar"){
+document.documentElement.lang="en";
+document.documentElement.dir="ltr";
+searchInput.placeholder="Search the internet...";
+lang="en";
+}else{
+location.reload();
+}
+}
 
-    <script>
-        /**
-         * 1. INITIALIZATION & GLOBAL STATE
-         */
-        const CONFIG = {
-            stars: 15000,
-            particleColor: 0x00f2ff,
-            premiumPrice: "50.00",
-            syncRate: 65
-        };
+function search(){
+let q=document.getElementById("searchInput").value.trim();
+if(!q) return;
 
-        let scene, camera, renderer, particles, starField;
-        const inputField = document.getElementById('soulInput');
-        const radarCursor = document.getElementById('radar-cursor');
-        
-        /**
-         * 2. THREE.JS ENGINE CORE
-         */
-        function initNebulaCore() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 4000);
-            camera.position.z = 1200;
+saveHistory(q);
 
-            renderer = new THREE.WebGLRenderer({
-                canvas: document.getElementById('nebula-main-canvas'),
-                antialias: true,
-                alpha: true
-            });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+let engine=document.getElementById("engine").value;
+let link="";
 
-            // Building Deep Starfield
-            const starGeometry = new THREE.BufferGeometry();
-            const starPoints = new Float32Array(CONFIG.stars * 3);
-            for(let i=0; i < CONFIG.stars * 3; i++) {
-                starPoints[i] = (Math.random() - 0.5) * 3000;
-            }
-            starGeometry.setAttribute('position', new THREE.BufferAttribute(starPoints, 3));
-            
-            const starMaterial = new THREE.PointsMaterial({
-                color: 0xffffff,
-                size: 0.7,
-                transparent: true,
-                opacity: 0.4
-            });
-            starField = new THREE.Points(starGeometry, starMaterial);
-            scene.add(starField);
+if(engine==="google") link="https://www.google.com/search?q="+encodeURIComponent(q);
+if(engine==="bing") link="https://www.bing.com/search?q="+encodeURIComponent(q);
+if(engine==="duck") link="https://duckduckgo.com/?q="+encodeURIComponent(q);
 
-            // Dynamic Nebula Cloud
-            const cloudGeo = new THREE.BufferGeometry();
-            const cloudPos = new Float32Array(2000 * 3);
-            for(let i=0; i < 2000 * 3; i++) {
-                cloudPos[i] = (Math.random() - 0.5) * 1000;
-            }
-            cloudGeo.setAttribute('position', new THREE.BufferAttribute(cloudPos, 3));
-            const cloudMat = new THREE.PointsMaterial({
-                color: CONFIG.particleColor,
-                size: 2,
-                transparent: true,
-                opacity: 0.8,
-                blending: THREE.AdditiveBlending
-            });
-            particles = new THREE.Points(cloudGeo, cloudMat);
-            scene.add(particles);
+let results=document.getElementById("results");
+results.innerHTML="";
 
-            animateNebula();
-        }
+let r=document.createElement("div");
+r.className="result";
+r.innerHTML="<strong>"+q+"</strong><br>اضغط لفتح النتائج";
+r.onclick=function(){ window.open(link,"_blank"); };
 
-        /**
-         * 3. ANIMATION CYCLE
-         */
-        function animateNebula() {
-            requestAnimationFrame(animateNebula);
-            
-            starField.rotation.y += 0.0003;
-            particles.rotation.x += 0.001;
-            particles.rotation.z += 0.0005;
+results.appendChild(r);
+}
 
-            renderer.render(scene, camera);
-        }
+function saveHistory(q){
+let h=JSON.parse(localStorage.getItem("nebulaHistory"))||[];
+h.unshift(q);
+h=h.slice(0,7);
+localStorage.setItem("nebulaHistory",JSON.stringify(h));
+showHistory();
+}
 
-        /**
-         * 4. RADAR & MOUSE INTERACTION
-         */
-        window.addEventListener('mousemove', (e) => {
-            // Update Radar Position
-            gsap.to(radarCursor, {
-                x: e.clientX,
-                y: e.clientY,
-                duration: 0.1,
-                ease: "power2.out"
-            });
+function showHistory(){
+let h=JSON.parse(localStorage.getItem("nebulaHistory"))||[];
+let box=document.getElementById("history");
+if(h.length===0){ box.innerHTML=""; return;}
+box.innerHTML="<br>آخر عمليات البحث:<br>"+h.map(x=>"- "+x).join("<br>");
+}
 
-            // Update UI Data
-            document.getElementById('pos-x').innerText = e.clientX.toString().padStart(3, '0');
-            document.getElementById('pos-y').innerText = e.clientY.toString().padStart(3, '0');
+function clearHistory(){
+localStorage.removeItem("nebulaHistory");
+showHistory();
+}
 
-            // Parallax Camera Effect
-            if(camera) {
-                gsap.to(camera.position, {
-                    x: (e.clientX - window.innerWidth/2) * 0.2,
-                    y: -(e.clientY - window.innerHeight/2) * 0.2,
-                    duration: 2,
-                    ease: "power1.out"
-                });
-            }
-        });
+showHistory();
+</script>
 
-        /**
-         * 5. SIGNAL BLAST LOGIC (WORD EXPLOSION)
-         */
-        function triggerBlast() {
-            const val = inputField.value.trim();
-            if(!val) {
-                gsap.to(".supreme-card", { x: 10, duration: 0.1, repeat: 5, yoyo: true });
-                return;
-            }
-
-            // Create Blast Layers
-            for(let i=0; i<4; i++) {
-                const frag = document.createElement('div');
-                frag.className = 'signal-fragment orbitron';
-                frag.innerText = val;
-                
-                // Variating styles for epic look
-                const colors = ['#00f2ff', '#7000ff', '#ffffff', '#ffd700'];
-                frag.style.color = colors[i];
-                frag.style.fontSize = (Math.random()*60 + 40) + 'px';
-                frag.style.left = '50%';
-                frag.style.top = '50%';
-                
-                document.body.appendChild(frag);
-
-                // Complex Animation Sequence
-                gsap.fromTo(frag, 
-                    { xPercent: -50, yPercent: -50, scale: 0, opacity: 0, z: 0 },
-                    { 
-                        scale: 20, 
-                        opacity: 1, 
-                        rotationX: (Math.random()-0.5)*500,
-                        rotationY: (Math.random()-0.5)*500,
-                        duration: 4 + i, 
-                        ease: "power4.in",
-                        onComplete: () => {
-                            gsap.to(frag, { opacity: 0, duration: 1, onComplete: () => frag.remove() });
-                        }
-                    }
-                );
-            }
-
-            // UI Feedback
-            inputField.value = "";
-            inputField.blur();
-            updateSyncStatus();
-        }
-
-        /**
-         * 6. PREMIUM PORTAL LOGIC ($50)
-         */
-        function openPremiumPortal() {
-            const choice = confirm(PROTOCOL WARNING: You are entering the Golden Legacy Tier.\nProcessing permanent archive entry for: $${CONFIG.premiumPrice}\nProceed?);
-            if(choice) {
-                window.open(https://paypal.me/YOUR_USER/${CONFIG.premiumPrice}, '_blank');
-            }
-        }
-
-        /**
-         * 7. SYSTEM UTILITIES
-         */
-        function updateSyncStatus() {
-            const bar = document.getElementById('sync-bar');
-            let current = parseInt(bar.style.width);
-            if(current < 100) {
-                current += 2;
-                bar.style.width = current + '%';
-            }
-        }
-
-        // Handle Window Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Auto-Initialize
-        window.onload = () => {
-            initNebulaCore();
-            console.log("%c NEBULA SUPREME EMPIRE V8.0 ONLINE ", "background: #000; color: #00f2ff; font-size: 20px; font-weight: bold;");
-        };
-
-        /* [DEVELOPER NOTES: SECTION 10 - REDUNDANCY CHECKS]
-           The following lines ensure maximum stability for high-end rendering.
-           Building the void requires persistence and calculated frequencies.
-           ------------------------------------------------------------------
-        */
-        function __redundancyCheck() {
-            return "Stable";
-        }
-        // ... (تكملة الأسطر البرمجية لضمان الطول والكفاءة) ...
-    </script>
 </body>
 </html>
