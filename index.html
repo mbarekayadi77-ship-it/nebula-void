@@ -3,102 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEBULA VOID | سديم الفراغ</title>
+    <title>NEBULA VOID | أرشيف الأرواح الرقمي</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Cairo:wght@300;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; }
-        .ui-panel {
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
+        * { cursor: crosshair; margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; color: white; font-family: 'Cairo', sans-serif; overflow: hidden; }
+        .nebula-font { font-family: 'Orbitron', sans-serif; }
+
+        /* تأثير التوهج للواجهة */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+            transition: 0.5s;
         }
-        .gold-glow {
-            background: linear-gradient(45deg, #ffd700, #b8860b);
-            color: black; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-            animation: pulse 2s infinite;
+
+        .glass-container:hover { border-color: rgba(59, 130, 246, 0.5); }
+
+        /* الكلمات التي تطير في الفضاء */
+        .floating-word {
+            position: absolute;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            font-weight: 900;
+            filter: blur(1px);
+            animation: moveWord 8s linear forwards;
+            white-space: nowrap;
         }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
-        input::placeholder { color: rgba(255,255,255,0.3); }
+
+        @keyframes moveWord {
+            0% { transform: translateZ(0) scale(0.5); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateZ(1000px) scale(3); opacity: 0; }
+        }
+
+        /* زر النجمة الذهبية المتحرك */
+        .gold-button {
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+            background-size: 200%;
+            animation: goldAnim 3s infinite;
+            color: black; font-weight: bold;
+        }
+
+        @keyframes goldAnim {
+            0% { background-position: 0%; }
+            100% { background-position: 200%; }
+        }
+
+        /* القائمة الجانبية للأرشيف */
+        .side-archive {
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            border-left: 2px solid rgba(59, 130, 246, 0.3);
+            padding-left: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="absolute inset-0 z-10 flex flex-col items-center justify-between py-12 pointer-events-none">
-        <div class="text-center">
-            <h1 class="text-6xl font-black tracking-[0.3em] text-white opacity-90">NEBULA VOID</h1>
-            <p class="text-blue-400 tracking-[0.5em] text-xs mt-2">THE FUTURE OF DIGITAL SOUL</p>
-        </div>
+    <div id="canvas-container" class="fixed inset-0 z-0"></div>
 
-        <div class="ui-panel p-10 pointer-events-auto flex flex-col items-center gap-6 w-[90%] max-w-md">
-            <input type="text" id="userInput" placeholder="اكتب شعورك أو كلمتك..." 
-                   class="bg-white/5 border border-white/10 p-5 rounded-2xl w-full text-center text-white outline-none focus:border-blue-500 transition-all text-xl">
-            
-            <div class="flex gap-4 w-full">
-                <button onclick="processSoul()" class="flex-1 bg-white text-black p-4 rounded-2xl font-bold hover:bg-blue-500 hover:text-white transition-all">إرسال للفراغ</button>
-                <button onclick="openPayment()" class="gold-glow p-4 rounded-2xl font-black text-xs">كن نجماً ذهبياً ($1)</button>
+    <div class="relative z-10 flex flex-col items-center justify-between h-screen py-10 pointer-events-none">
+        
+        <header class="text-center">
+            <h1 class="nebula-font text-6xl md:text-9xl font-black tracking-[0.2em] opacity-20">VOID</h1>
+            <h2 class="text-blue-400 nebula-font text-xs tracking-[1em] -mt-4 uppercase">Nebula Archive System</h2>
+        </header>
+
+        <main class="glass-container p-10 w-[95%] max-w-xl pointer-events-auto">
+            <div class="mb-6">
+                <p class="text-[10px] text-blue-300 nebula-font mb-2 tracking-widest uppercase">Input your frequency:</p>
+                <input type="text" id="soulInput" maxlength="30" placeholder="اكتب شعورك هنا..." 
+                    class="w-full bg-transparent border-b-2 border-white/20 p-4 text-2xl text-center focus:border-blue-500 outline-none transition-all">
             </div>
-        </div>
 
-        <div class="flex gap-10 text-[10px] text-white/40 tracking-widest">
-            <span>COORDINATES: <span id="coords">0,0,0</span></span>
-            <span>WORLD STATUS: <span class="text-green-500">LIVE</span></span>
-        </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="castToVoid()" class="bg-white text-black py-4 rounded-full font-black hover:bg-blue-600 hover:text-white transition-all transform active:scale-90">إرسال للفراغ</button>
+                <button onclick="showGoldInfo()" class="gold-button py-4 rounded-full flex items-center justify-center gap-2">
+                    <span>كن نجماً ذهبياً</span>
+                    <span class="bg-black/20 px-2 py-1 rounded text-[10px]">$1</span>
+                </button>
+            </div>
+        </main>
+
+        <footer class="w-full px-10 flex justify-between items-end opacity-40 nebula-font text-[8px]">
+            <div>COORD: 45.001 / -90.23 <br> STATUS: CORE_STABLE</div>
+            <div class="text-right">COLLECTED_SOULS: <span id="soulCounter">12,409</span></div>
+        </footer>
+    </div>
+
+    <div class="side-archive z-10 hidden md:block opacity-30 text-[10px] nebula-font" id="archiveList">
+        <p class="mb-2 text-blue-400">LAST SIGNALS:</p>
+        <div id="signals"></div>
     </div>
 
     <script>
-        // إعداد المحرك البصري 3D
+        // --- إعداد المشهد ثلاثي الأبعاد ---
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // إنشاء سديم تفاعلي
-        const starGeo = new THREE.BufferGeometry();
-        const starCoords = [];
-        for (let i = 0; i < 20000; i++) {
-            starCoords.push(THREE.MathUtils.randFloatSpread(1500), THREE.MathUtils.randFloatSpread(1500), THREE.MathUtils.randFloatSpread(1500));
+        // إنشاء آلاف النجوم
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsPos = [];
+        for(let i=0; i<15000; i++) {
+            starsPos.push(THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000));
         }
-        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-        const starMat = new THREE.PointsMaterial({ color: 0x4444ff, size: 1.5, transparent: true, opacity: 0.8 });
-        const nebula = new THREE.Points(starGeo, starMat);
-        scene.add(nebula);
+        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsPos, 3));
+        const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 });
+        const starField = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(starField);
 
-        camera.position.z = 800;
+        camera.position.z = 1;
 
-        // التحريك اللحظي
+        // التحريك
         function animate() {
             requestAnimationFrame(animate);
-            nebula.rotation.y += 0.0003;
-            nebula.rotation.x += 0.0001;
-            
-            // محاكاة إحداثيات متغيرة
-            document.getElementById('coords').innerText = 
-                ${Math.floor(nebula.rotation.y * 100)}, ${Math.floor(nebula.rotation.x * 100)}, 800;
-            
+            starField.rotation.y += 0.0005;
+            starField.position.z += 0.5; // تأثير السفر بسرعة الضوء
+            if(starField.position.z > 500) starField.position.z = 0;
             renderer.render(scene, camera);
         }
         animate();
 
-        // منطق التفاعل والذكاء (The AI Logic)
-        function processSoul() {
-            const input = document.getElementById('userInput').value;
-            if(!input) return;
+        // --- منطق الموقع ---
+        function castToVoid() {
+            const input = document.getElementById('soulInput');
+            const val = input.value.trim();
 
-            // تغيير لون السديم بناءً على الكلمة (محاكاة ذكاء اصطناعي)
-            const colors = [0xff00ff, 0x00ffff, 0xffff00, 0xff0000, 0x00ff00];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            nebula.material.color.setHex(randomColor);
-            alert(تم تحليل "${input}".. الفراغ يتفاعل معك الآن!);
-            document.getElementById('userInput').value = '';
+            if(val.length < 2) {
+                alert("الكلمة قصيرة جداً لتصل إلى الفراغ!");
+                return;
+            }
+
+            // إنشاء الكلمة الطائرة
+            const word = document.createElement('div');
+            word.className = 'floating-word';
+            word.innerText = val;
+            word.style.left = Math.random() * 80 + 10 + '%';
+            word.style.top = Math.random() * 80 + 10 + '%';
+            word.style.color = hsl(${Math.random() * 360}, 100%, 80%);
+            word.style.fontSize = Math.random() * 30 + 20 + 'px';
+            document.body.appendChild(word);
+
+            // إضافة للأرشيف الجانبي
+            const sig = document.createElement('p');
+            sig.innerText = > ${val};
+            const signals = document.getElementById('signals');
+            signals.prepend(sig);
+            if(signals.children.length > 5) signals.lastChild.remove();
+
+            // تحديث العداد
+            const count = document.getElementById('soulCounter');
+            count.innerText = (parseInt(count.innerText.replace(',','')) + 1).toLocaleString();
+
+            // تنظيف وإعادة تركيز
+            input.value = "";
+            setTimeout(() => word.remove(), 8000);
         }
 
-        function openPayment() {
-            // هنا نضع رابط الدفع الخاص بك (PayPal/Stripe)
-            window.open('https://paypal.me/YOUR_USER_NAME', '_blank');
+        function showGoldInfo() {
+            alert("سجل اسمك في السديم للأبد بنجمة ذهبية لا تنطفئ.");
+            window.open('https://paypal.me/YOUR_NAME', '_blank');
         }
 
         window.addEventListener('resize', () => {
