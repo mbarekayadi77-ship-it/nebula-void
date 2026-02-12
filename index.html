@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEBULA VOID | سديم الفراغ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; }
+        .ui-panel {
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+        .gold-glow {
+            background: linear-gradient(45deg, #ffd700, #b8860b);
+            color: black; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+        input::placeholder { color: rgba(255,255,255,0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="absolute inset-0 z-10 flex flex-col items-center justify-between py-12 pointer-events-none">
+        <div class="text-center">
+            <h1 class="text-6xl font-black tracking-[0.3em] text-white opacity-90">NEBULA VOID</h1>
+            <p class="text-blue-400 tracking-[0.5em] text-xs mt-2">THE FUTURE OF DIGITAL SOUL</p>
+        </div>
+
+        <div class="ui-panel p-10 pointer-events-auto flex flex-col items-center gap-6 w-[90%] max-w-md">
+            <input type="text" id="userInput" placeholder="اكتب شعورك أو كلمتك..." 
+                   class="bg-white/5 border border-white/10 p-5 rounded-2xl w-full text-center text-white outline-none focus:border-blue-500 transition-all text-xl">
+            
+            <div class="flex gap-4 w-full">
+                <button onclick="processSoul()" class="flex-1 bg-white text-black p-4 rounded-2xl font-bold hover:bg-blue-500 hover:text-white transition-all">إرسال للفراغ</button>
+                <button onclick="openPayment()" class="gold-glow p-4 rounded-2xl font-black text-xs">كن نجماً ذهبياً ($1)</button>
+            </div>
+        </div>
+
+        <div class="flex gap-10 text-[10px] text-white/40 tracking-widest">
+            <span>COORDINATES: <span id="coords">0,0,0</span></span>
+            <span>WORLD STATUS: <span class="text-green-500">LIVE</span></span>
+        </div>
+    </div>
+
+    <script>
+        // إعداد المحرك البصري 3D
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // إنشاء سديم تفاعلي
+        const starGeo = new THREE.BufferGeometry();
+        const starCoords = [];
+        for (let i = 0; i < 20000; i++) {
+            starCoords.push(THREE.MathUtils.randFloatSpread(1500), THREE.MathUtils.randFloatSpread(1500), THREE.MathUtils.randFloatSpread(1500));
+        }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0x4444ff, size: 1.5, transparent: true, opacity: 0.8 });
+        const nebula = new THREE.Points(starGeo, starMat);
+        scene.add(nebula);
+
+        camera.position.z = 800;
+
+        // التحريك اللحظي
+        function animate() {
+            requestAnimationFrame(animate);
+            nebula.rotation.y += 0.0003;
+            nebula.rotation.x += 0.0001;
+            
+            // محاكاة إحداثيات متغيرة
+            document.getElementById('coords').innerText = 
+                ${Math.floor(nebula.rotation.y * 100)}, ${Math.floor(nebula.rotation.x * 100)}, 800;
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // منطق التفاعل والذكاء (The AI Logic)
+        function processSoul() {
+            const input = document.getElementById('userInput').value;
+            if(!input) return;
+
+            // تغيير لون السديم بناءً على الكلمة (محاكاة ذكاء اصطناعي)
+            const colors = [0xff00ff, 0x00ffff, 0xffff00, 0xff0000, 0x00ff00];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            nebula.material.color.setHex(randomColor);
+            alert(تم تحليل "${input}".. الفراغ يتفاعل معك الآن!);
+            document.getElementById('userInput').value = '';
+        }
+
+        function openPayment() {
+            // هنا نضع رابط الدفع الخاص بك (PayPal/Stripe)
+            window.open('https://paypal.me/YOUR_USER_NAME', '_blank');
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
